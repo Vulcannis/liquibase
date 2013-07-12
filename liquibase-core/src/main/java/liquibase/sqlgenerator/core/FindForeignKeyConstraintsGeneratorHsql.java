@@ -3,8 +3,7 @@ package liquibase.sqlgenerator.core;
 import liquibase.database.Database;
 import liquibase.database.core.HsqlDatabase;
 import liquibase.exception.ValidationErrors;
-import liquibase.sql.Sql;
-import liquibase.sql.UnparsedSql;
+import liquibase.sql.*;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.statement.core.FindForeignKeyConstraintsStatement;
 
@@ -17,23 +16,21 @@ public class FindForeignKeyConstraintsGeneratorHsql extends AbstractSqlGenerator
     }
 
     @Override
-    public boolean supports(FindForeignKeyConstraintsStatement statement, Database database)
+    public boolean supports(final FindForeignKeyConstraintsStatement statement, final Database database)
     {
         return database instanceof HsqlDatabase;
     }
 
-    @Override
-    public ValidationErrors validate(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain)
+    public ValidationErrors validate(final FindForeignKeyConstraintsStatement statement, final Database database, final SqlGeneratorChain sqlGeneratorChain)
     {
-        ValidationErrors validationErrors = new ValidationErrors();
+        final ValidationErrors validationErrors = new ValidationErrors();
         validationErrors.checkRequiredField("baseTableName", statement.getBaseTableName());
         return validationErrors;
     }
 
-    @Override
-    public Sql[] generateSql(FindForeignKeyConstraintsStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain)
+    public Sql[] generateSql(final FindForeignKeyConstraintsStatement statement, final Database database, final SqlGeneratorChain sqlGeneratorChain)
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         
         sb.append("SELECT ");
         sb.append("FKTABLE_NAME as ").append(FindForeignKeyConstraintsStatement.RESULT_COLUMN_BASE_TABLE_NAME).append(", ");
