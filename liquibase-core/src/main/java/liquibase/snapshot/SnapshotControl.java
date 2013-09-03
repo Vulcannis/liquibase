@@ -1,29 +1,21 @@
 package liquibase.snapshot;
 
-import liquibase.database.Database;
-import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.logging.LogFactory;
-import liquibase.servicelocator.ServiceLocator;
-import liquibase.structure.DatabaseObject;
-import liquibase.structure.core.Catalog;
-import liquibase.structure.core.DatabaseObjectFactory;
-import liquibase.structure.core.Schema;
-import liquibase.util.StringUtils;
+import java.util.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
+import liquibase.database.Database;
+import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.*;
 
 public class SnapshotControl {
 
     private Set<Class<? extends DatabaseObject>> types;
 
-    public SnapshotControl(Database database) {
+    public SnapshotControl(final Database database) {
         setTypes(DatabaseObjectFactory.getInstance().getStandardTypes(), database);
     }
 
-    public SnapshotControl(Database database, Class<? extends DatabaseObject>... types) {
+    @SafeVarargs
+    public SnapshotControl(final Database database, final Class<? extends DatabaseObject>... types) {
         if (types == null || types.length == 0) {
             setTypes(DatabaseObjectFactory.getInstance().getStandardTypes(), database);
         } else {
@@ -31,13 +23,13 @@ public class SnapshotControl {
         }
     }
 
-    public SnapshotControl(Database database, String types) {
+    public SnapshotControl(final Database database, final String types) {
         setTypes(DatabaseObjectFactory.getInstance().parseTypes(types), database);
     }
 
-    private void setTypes(Set<Class<? extends DatabaseObject>> types, Database database) {
+    private void setTypes(final Set<Class<? extends DatabaseObject>> types, final Database database) {
         this.types = new HashSet<Class<? extends DatabaseObject>>();
-        for (Class<? extends DatabaseObject> type : types) {
+        for (final Class<? extends DatabaseObject> type : types) {
             this.types.addAll(SnapshotGeneratorFactory.getInstance().getContainerTypes(type, database));
             this.types.add(type);
         }
@@ -47,7 +39,7 @@ public class SnapshotControl {
         return types;
     }
 
-    public boolean shouldInclude(Class<? extends DatabaseObject> type) {
+    public boolean shouldInclude(final Class<? extends DatabaseObject> type) {
         return type.equals(Catalog.class) || type.equals(Schema.class) || types.contains(type);
     }
 }

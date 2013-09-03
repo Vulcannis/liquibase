@@ -2,35 +2,33 @@ package liquibase.test;
 
 import java.util.Set;
 
-import org.junit.ComparisonFailure;
-
 import liquibase.database.Database;
 import liquibase.database.core.SQLiteDatabase;
 import liquibase.exception.MigrationFailedException;
 import liquibase.executor.ExecutorService;
 import liquibase.executor.jvm.JdbcExecutor;
-import liquibase.lockservice.LockService;
-import liquibase.lockservice.LockServiceFactory;
-import liquibase.lockservice.LockServiceImpl;
+import liquibase.lockservice.*;
+
+import org.junit.ComparisonFailure;
 
 public class DatabaseTestTemplate {
-    public void testOnAvailableDatabases(DatabaseTest test) throws Exception {
+    public void testOnAvailableDatabases(final DatabaseTest test) throws Exception {
         test(test, DatabaseTestContext.getInstance().getAvailableDatabases());
     }
 
-    public void testOnAllDatabases(DatabaseTest test) throws Exception {
+    public void testOnAllDatabases(final DatabaseTest test) throws Exception {
         test(test, TestContext.getInstance().getAllDatabases());
     }
 
-    private void test(DatabaseTest test, Set<Database> databasesToTestOn) throws Exception {
-        for (Database database : databasesToTestOn) {
+    public void test(final DatabaseTest test, final Set<Database> databasesToTestOn) throws Exception {
+        for (final Database database : databasesToTestOn) {
             if (database instanceof SQLiteDatabase) {
                 continue; //todo: find how to get tests to run correctly on SQLite
             }
-            JdbcExecutor writeExecutor = new JdbcExecutor();
+            final JdbcExecutor writeExecutor = new JdbcExecutor();
             writeExecutor.setDatabase(database);
             ExecutorService.getInstance().setExecutor(database, writeExecutor);
-            LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+            final LockService lockService = LockServiceFactory.getInstance().getLockService(database);
             lockService.reset();
             if (database.getConnection() != null) {
                 lockService.forceReleaseLock();
@@ -38,43 +36,43 @@ public class DatabaseTestTemplate {
 
             try {
                 test.performTest(database);
-            } catch (ComparisonFailure e) {
+            } catch (final ComparisonFailure e) {
                 String newMessage = "Database Test Failure on " + database;
                 if (e.getMessage() != null) {
                     newMessage += ": " + e.getMessage();
                 }
 
-                ComparisonFailure newError = new ComparisonFailure(newMessage, e.getExpected(), e.getActual());
+                final ComparisonFailure newError = new ComparisonFailure(newMessage, e.getExpected(), e.getActual());
                 newError.setStackTrace(e.getStackTrace());
                 throw newError;
-            } catch (AssertionError e) {
+            } catch (final AssertionError e) {
                 e.printStackTrace();
                 String newMessage = "Database Test Failure on " + database;
                 if (e.getMessage() != null) {
                     newMessage += ": " + e.getMessage();
                 }
 
-                AssertionError newError = new AssertionError(newMessage);
+                final AssertionError newError = new AssertionError(newMessage);
                 newError.setStackTrace(e.getStackTrace());
                 throw newError;
-            } catch (MigrationFailedException e) {
+            } catch (final MigrationFailedException e) {
                 e.printStackTrace();
                 String newMessage = "Database Test Failure on " + database;
                 if (e.getMessage() != null) {
                     newMessage += ": " + e.getMessage();
                 }
 
-                AssertionError newError = new AssertionError(newMessage);
+                final AssertionError newError = new AssertionError(newMessage);
                 newError.setStackTrace(e.getStackTrace());
                 throw newError;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 String newMessage = "Database Test Exception on " + database;
                 if (e.getMessage() != null) {
                     newMessage += ": " + e.getMessage();
                 }
                 
-                Exception newError = e.getClass().getConstructor(String.class).newInstance(newMessage);
+                final Exception newError = e.getClass().getConstructor(String.class).newInstance(newMessage);
                 if (e.getCause() == null) {
                     newError.setStackTrace(e.getStackTrace());
                 } else {
